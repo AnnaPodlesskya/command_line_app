@@ -37,19 +37,13 @@ var _ = Describe("multi-git e2e tests", func() {
 		It("Should fail with invalid base dir", func() {
 			output, err := RunMultiGit("status", false, "/no-such-dir", repoList)
 			Ω(err).ShouldNot(BeNil())
-			fmt.Println(">>> TEST output:", output)
-			fmt.Println(">>> TEST error:", err)
 			suffix := "base dir: '/no-such-dir/' doesn't exist"
-			fmt.Println(">>> TEST output:", output)
-			fmt.Println(">>> TEST error:", err)
 			Ω(output).Should(HaveSuffix(suffix))
 		})
 
 		It("Should fail with empty repo list", func() {
 			output, err := RunMultiGit("status", false, absBaseDir, repoList)
 			Ω(err).ShouldNot(BeNil())
-			fmt.Println(">>> TEST output:", output)
-			fmt.Println(">>> TEST error:", err)
 			Ω(output).Should(ContainSubstring("repo list can't be empty"))
 
 		})
