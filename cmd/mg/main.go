@@ -12,7 +12,7 @@ import (
 
 func main() {
 	command := flag.String("command", "", "The git command")
-	ignoreErros := flag.Bool(
+	ignoreErrors := flag.Bool(
 		"ignore-errors",
 		false, "Keep running after error if true")
 	flag.Parse()
@@ -21,13 +21,20 @@ func main() {
 	if root[len(root)-1] != '/' {
 		root += "/"
 	}
-	repoNames := strings.Split(os.Getenv("MG_REPOS"), ",")
+	repoNames := []string{}
+	if len(os.Getenv("MG_REPOS")) > 0 {
+		repoNames = strings.Split(os.Getenv("MG_REPOS"), ",")
+	}
 
-	repoManger, err := repo_manager.NewRepoManager(root, repoNames, *ignoreErros)
+	repoManger, err := repo_manager.NewRepoManager(root, repoNames, *ignoreErrors)
 	if err != nil {
 		log.Fatal(err)
 	}
-	output, _ := repoManger.Exec(*command)
+	output, err := repoManger.Exec(*command)
+	if err != nil {
+		fmt.Println(">>> Error returned from NewRepoManager:", err)
+		log.Fatal(err)
+	}
 	for repo, out := range output {
 		fmt.Printf("[%s]: git %s\n", path.Base(repo), *command)
 		fmt.Println(out)

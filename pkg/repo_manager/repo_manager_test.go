@@ -2,6 +2,7 @@ package repo_manager
 
 import (
 	. "command_line_programs/pkg/helpers"
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"os"
@@ -10,7 +11,7 @@ import (
 	"strings"
 )
 
-const baseDir = "tmp/test-multi-git"
+const baseDir = "/tmp/test-multi-git"
 
 var repoList = []string{}
 
@@ -100,6 +101,8 @@ var _ = Describe("Repo manager tests", func() {
 
 		Ω(outputs[path.Join(absBaseDir, "dir-1")]).Should(ContainSubstring("On branch"))
 		Ω(outputs[path.Join(absBaseDir, "dir-2")]).Should(ContainSubstring("On branch"))
-		Ω(outputs[path.Join(absBaseDir, "not-a-git-repo")]).Should(ContainSubstring("not a git repository"))
+		fmt.Println("OUTPUT for not-a-git-repo:")
+		fmt.Println(outputs[path.Join(absBaseDir, "not-a-git-repo")])
+		Ω(outputs[path.Join(absBaseDir, "not-a-git-repo")]).Should(ContainSubstring("fatal: not a git repository"))
 	})
 })

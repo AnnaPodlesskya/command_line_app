@@ -22,15 +22,15 @@ func NewRepoManager(baseDir string, repoNames []string, ignoreErrors bool) (repo
 	_, err = os.Stat(baseDir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			err = errors.New(fmt.Sprintf("base dir: '%s' doesnt exist", baseDir))
+			err = errors.New(fmt.Sprintf("base dir: '%s' doesn't exist", baseDir))
 		}
 		return
 	}
-	if baseDir[len(baseDir)-1] != '/' {
+	if len(baseDir) > 0 && baseDir[len(baseDir)-1] != '/' {
 		baseDir += "/"
 	}
 	if len(repoNames) == 0 {
-		err = errors.New("repo list cant be empty")
+		err = errors.New("repo list can't be empty")
 		return
 	}
 	repoManager = &RepoManager{ignoreErrors: ignoreErrors}
@@ -67,6 +67,7 @@ func (m *RepoManager) Exec(cmd string) (output map[string]string, err error) {
 		components = append(components, component)
 	}
 	wd, _ := os.Getwd()
+
 	defer os.Chdir(wd)
 
 	var out []byte
