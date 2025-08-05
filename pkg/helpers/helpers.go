@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -10,48 +9,68 @@ import (
 )
 
 func RunMultiGit(command string, ignoreErrors bool, mgRoot string, mgRepos string) (output string, err error) {
-	info, statErr := os.Stat(mgRoot)
-	if statErr != nil {
-		if os.IsNotExist(statErr) {
-			err = fmt.Errorf("base dir: '%s/' doesn't exist", mgRoot)
-		} else {
-			err = statErr
-		}
-		output = err.Error()
-		return
-	}
-	if !info.IsDir() {
-		err = fmt.Errorf("base dir: '%s/' is not a directory", mgRoot)
-		output = err.Error()
-		return
-	}
-	if mgRepos == "" {
-		err = errors.New("repo list can't be empty")
-		output = err.Error()
-		return
-	}
-	out, err := exec.Command("which", "mg").CombinedOutput()
+	//info, statErr := os.Stat(mgRoot)
+	//if statErr != nil {
+	//	if os.IsNotExist(statErr) {
+	//		err = fmt.Errorf("base dir: '%s/' doesn't exist", mgRoot)
+	//	} else {
+	//		err = statErr
+	//	}
+	//	output = err.Error()
+	//	return
+	//}
+	//if !info.IsDir() {
+	//	err = fmt.Errorf("base dir: '%s/' is not a directory", mgRoot)
+	//	output = err.Error()
+	//	return
+	//}
+	//if mgRepos == "" {
+	//	err = errors.New("repo list can't be empty")
+	//	output = err.Error()
+	//	return
+	//}
+	//out, err := exec.Command("which", "multi-git").CombinedOutput()
+	//if err != nil {
+	//	output = string(out) + "\n" + err.Error() // ✅
+	//	return
+	//}
+	//if len(out) == 0 {
+	//	err = errors.New("mg is not in the PATH")
+	//	output = err.Error()
+	//	return
+	//}
+	//components := []string{command}
+	//if ignoreErrors {
+	//	components = append(components, "--ignore-errors")
+	//}
+	//cmd := exec.Command("multi-git", components...)
+	//cmd.Env = os.Environ()
+	//cmd.Env = append(cmd.Env, "MG_ROOT="+mgRoot, "MG_REPOS="+mgRepos)
+	//out, err = cmd.CombinedOutput()
+	//output = string(out)
+	//if err != nil {
+	//	output += "\n" + err.Error()
+	//}
+	//return
+	out, err := exec.Command("which", "multi-git").CombinedOutput()
 	if err != nil {
-		output = string(out) + "\n" + err.Error() // ✅
 		return
 	}
+
 	if len(out) == 0 {
-		err = errors.New("mg is not in the PATH")
-		output = err.Error()
+		err = errors.New("multi-git is not in the PATH")
 		return
 	}
-	components := []string{"--command", command}
+
+	components := []string{command}
 	if ignoreErrors {
 		components = append(components, "--ignore-errors")
 	}
-	cmd := exec.Command("mg", components...)
+	cmd := exec.Command("multi-git", components...)
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "MG_ROOT="+mgRoot, "MG_REPOS="+mgRepos)
 	out, err = cmd.CombinedOutput()
 	output = string(out)
-	if err != nil {
-		output += "\n" + err.Error()
-	}
 	return
 }
 func CreateDir(baseDir string, name string, initGit bool) (err error) {

@@ -37,8 +37,7 @@ var _ = Describe("multi-git e2e tests", func() {
 		It("Should fail with invalid base dir", func() {
 			output, err := RunMultiGit("status", false, "/no-such-dir", repoList)
 			Ω(err).ShouldNot(BeNil())
-			suffix := "base dir: '/no-such-dir/' doesn't exist"
-			Ω(output).Should(HaveSuffix(suffix))
+			Ω(output).Should(MatchRegexp(`base dir: '.+' doesn't exist`))
 		})
 
 		It("Should fail with empty repo list", func() {
@@ -98,7 +97,8 @@ var _ = Describe("multi-git e2e tests", func() {
 
 			output, err := RunMultiGit("status", false, baseDir, repoList)
 			Ω(err).Should(BeNil())
-			Ω(output).Should(ContainSubstring("fatal: not a git repository"))
+			Ω(output).Should(ContainSubstring("[dir-1]: git status\nfatal: not a git repository"))
+			Ω(output).ShouldNot(ContainSubstring("[dir-2]"))
 		})
 	})
 	Context("Tests for ignoreErrors flag", func() {

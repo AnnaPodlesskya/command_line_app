@@ -5,11 +5,14 @@ go 1.24.3
 require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.10.1
+	github.com/spf13/cobra v1.9.1
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sys v0.0.0-20210112080510-489259a85091 // indirect
 	golang.org/x/text v0.3.3 // indirect
