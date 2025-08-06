@@ -2,13 +2,14 @@ package helpers
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 )
 
-func RunMultiGit(command string, ignoreErrors bool, mgRoot string, mgRepos string) (output string, err error) {
+func RunMultiGit(command string, ignoreErrors bool, mgRoot string, mgRepos string, useConfigFile bool) (output string, err error) {
 	//info, statErr := os.Stat(mgRoot)
 	//if statErr != nil {
 	//	if os.IsNotExist(statErr) {
@@ -63,12 +64,23 @@ func RunMultiGit(command string, ignoreErrors bool, mgRoot string, mgRepos strin
 	}
 
 	components := []string{command}
-	if ignoreErrors {
-		components = append(components, "--ignore-errors")
+	env := os.Environ()
+	if useConfigFile {
+		configFile := path.Join(mgRoot, "multi-git-test-config.toml")
+		data := fmt.Sprintf("root = \"%s\"\nrepos = \"%s\"\nignore-errors = %v\n", mgRoot, mgRepos, ignoreErrors)
+		err = os.WriteFile(configFile, []byte(data), 0644)
+		if err != nil {
+			return
+		}
+		components = append(components, "--config", configFile)
+	} else {
+		if ignoreErrors {
+			components = append(components, "--ignore-errors")
+		}
+		env = append(env, "MG_ROOT="+mgRoot, "MG_REPOS="+mgRepos)
 	}
 	cmd := exec.Command("multi-git", components...)
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "MG_ROOT="+mgRoot, "MG_REPOS="+mgRepos)
+	cmd.Env = env
 	out, err = cmd.CombinedOutput()
 	output = string(out)
 	return

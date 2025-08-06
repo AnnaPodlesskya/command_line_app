@@ -3,13 +3,16 @@ package cmd
 import (
 	"command_line_programs/pkg/repo_manager"
 	"fmt"
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path"
 	"strings"
 )
 
+var configFilename string
 var ignoreErrors bool
 var rootCmd = &cobra.Command{
 	Use:   "multi-git",
@@ -21,16 +24,16 @@ var rootCmd = &cobra.Command{
 	MG_REPOS: list of repository names to operate on`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		root := os.Getenv("MG_ROOT")
+		root := viper.GetString("root")
 		if root[len(root)-1] != '/' {
 			root += "/"
 		}
 		repoNames := []string{}
-		if len(os.Getenv("MG_REPOS")) > 0 {
-			repoNames = strings.Split(os.Getenv("MG_REPOS"), ",")
+		if len(viper.GetString("repos")) > 0 {
+			repoNames = strings.Split(viper.GetString("repos"), ",")
 		}
 
-		repoManger, err := repo_manager.NewRepoManager(root, repoNames, ignoreErrors)
+		repoManger, err := repo_manager.NewRepoManager(root, repoNames, viper.GetBool("ignore-errors"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -47,15 +50,48 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func init() {
-	rootCmd.Flags().BoolVar(
-		&ignoreErrors,
+	cobra.OnInitialize(initConfig)
+	home, err := homedir.Dir()
+	check(err)
+
+	defaultConfigFilename := path.Join(home, ".config/multi-git.toml")
+	rootCmd.Flags().StringVar(&configFilename,
+		"config",
+		defaultConfigFilename,
+		"config file path (default is $HOME/multi-git.toml)")
+	rootCmd.Flags().Bool(
 		"ignore-errors",
 		false,
 		`will continue executing the command for all repos if ignore-errors
                  is true otherwise it will stop execution when an error occurs`)
+	err = viper.BindPFlag("ignore-errors", rootCmd.Flags().Lookup("ignore-errors"))
+	if err != nil {
+		panic("Unable to bind flag")
+	}
 }
+func initConfig() {
+	_, err := os.Stat(configFilename)
+	if os.IsNotExist(err) {
+		check(err)
+	}
+	viper.SetConfigFile(configFilename)
+	err = viper.ReadInConfig()
+	check(err)
 
+	viper.SetEnvPrefix("MG")
+	err = viper.BindEnv("root")
+	check(err)
+
+	err = viper.BindEnv("repos")
+	check(err)
+}
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {

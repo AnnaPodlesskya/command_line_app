@@ -35,13 +35,13 @@ var _ = Describe("multi-git e2e tests", func() {
 
 	Context("Tests for empty/undefined environment failure cases", func() {
 		It("Should fail with invalid base dir", func() {
-			output, err := RunMultiGit("status", false, "/no-such-dir", repoList)
+			output, err := RunMultiGit("status", false, "/no-such-dir", repoList, false)
 			Ω(err).ShouldNot(BeNil())
 			Ω(output).Should(MatchRegexp(`base dir: '.+' doesn't exist`))
 		})
 
 		It("Should fail with empty repo list", func() {
-			output, err := RunMultiGit("status", false, absBaseDir, repoList)
+			output, err := RunMultiGit("status", false, absBaseDir, repoList, true)
 			Ω(err).ShouldNot(BeNil())
 			Ω(output).Should(ContainSubstring("repo list can't be empty"))
 
@@ -55,7 +55,7 @@ var _ = Describe("multi-git e2e tests", func() {
 			Ω(err).Should(BeNil())
 			repoList = "dir-1,dir-2"
 
-			output, err := RunMultiGit("init", false, absBaseDir, repoList)
+			output, err := RunMultiGit("init", false, absBaseDir, repoList, true)
 			Ω(err).Should(BeNil())
 			count := strings.Count(output, "Initialized empty Git repository")
 			Ω(count).Should(Equal(2))
@@ -68,7 +68,7 @@ var _ = Describe("multi-git e2e tests", func() {
 			Ω(err).Should(BeNil())
 			repoList = "dir-1,dir-2"
 
-			output, err := RunMultiGit("status", false, absBaseDir, repoList)
+			output, err := RunMultiGit("status", false, absBaseDir, repoList, true)
 			Ω(err).Should(BeNil())
 			count := strings.Count(output, "nothing to commit")
 			Ω(count).Should(Equal(2))
@@ -80,7 +80,7 @@ var _ = Describe("multi-git e2e tests", func() {
 			Ω(err).Should(BeNil())
 			repoList = "dir-1,dir-2"
 
-			output, err := RunMultiGit("checkout -b test-branch", false, baseDir, repoList)
+			output, err := RunMultiGit("checkout -b test-branch", false, baseDir, repoList, true)
 			Ω(err).Should(BeNil())
 
 			count := strings.Count(output, "Switched to a new branch 'test-branch'")
@@ -95,7 +95,7 @@ var _ = Describe("multi-git e2e tests", func() {
 			Ω(err).Should(BeNil())
 			repoList = "dir-1,dir-2"
 
-			output, err := RunMultiGit("status", false, baseDir, repoList)
+			output, err := RunMultiGit("status", false, baseDir, repoList, true)
 			Ω(err).Should(BeNil())
 			Ω(output).Should(ContainSubstring("[dir-1]: git status\nfatal: not a git repository"))
 			Ω(output).ShouldNot(ContainSubstring("[dir-2]"))
@@ -111,7 +111,7 @@ var _ = Describe("multi-git e2e tests", func() {
 					Ω(err).Should(BeNil())
 					repoList = "dir-1,dir-2"
 
-					output, err := RunMultiGit("status", true, baseDir, repoList)
+					output, err := RunMultiGit("status", true, baseDir, repoList, true)
 					Ω(err).Should(BeNil())
 
 					Ω(output).Should(ContainSubstring("[dir-1]: git status\nfatal: not a git repository"))
@@ -126,7 +126,7 @@ var _ = Describe("multi-git e2e tests", func() {
 					Ω(err).Should(BeNil())
 					repoList = "dir-1,dir-2"
 
-					output, err := RunMultiGit("status", false, baseDir, repoList)
+					output, err := RunMultiGit("status", false, baseDir, repoList, true)
 					Ω(err).Should(BeNil())
 
 					Ω(output).Should(ContainSubstring("[dir-1]: git status\nfatal: not a git repository"))
